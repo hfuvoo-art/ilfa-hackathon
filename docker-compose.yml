@@ -20,7 +20,6 @@ services:
     command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql+psycopg2://ilfa:${POSTGRES_PASSWORD:-ilfa}@db:5432/ilfa
-      USE_FIXTURES: ${USE_FIXTURES:-auto}
       LLM_API_KEY: ${LLM_API_KEY:-}
     volumes:
       - ./data:/app/data

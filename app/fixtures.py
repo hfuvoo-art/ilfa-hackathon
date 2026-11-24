@@ -44,6 +44,15 @@ COMMENTS = [
     "дорого, спрашивала про рассрочку", "с ребенком", "корр", "лечение кариеса",
 ]
 
+# Теги заданы вручную для фейковых комментариев. Настоящие теги строит offers/.
+COMMENT_TAGS = {
+    "кормящая мама, переживает за безболезненность": ["parent", "pregnant_or_nursing", "anxious"],
+    "тревожная, боится уколов": ["anxious"],
+    "презентация имплантации, думает": ["complex_case", "thinking"],
+    "дорого, спрашивала про рассрочку": ["price_sensitive"],
+    "с ребенком": ["parent"],
+}
+
 TRIGGERS = {
     "implant_control": ("Прошёл почти год после имплантации", "Контрольный осмотр и гигиена", "reliability"),
     "hygiene_due": ("Полгода с последней гигиены", "Профессиональная гигиена", "care"),
@@ -144,14 +153,8 @@ def build(n_patients: int = 30) -> dict[str, pd.DataFrame]:
             })
     offers_df = pd.DataFrame(offers).drop_duplicates("offer_id")
 
-    tags = []
-    for _, v in visits_df[visits_df.comment != ""].iterrows():
-        c = v.comment
-        for tag, words in {"parent": ["мама", "ребенк"], "anxious": ["тревож", "боится", "переживает"],
-                           "price_sensitive": ["дорого", "рассрочк"], "thinking": ["думает"],
-                           "complex_case": ["имплантац"], "pregnant_or_nursing": ["кормящ"]}.items():
-            if any(w in c for w in words):
-                tags.append({"visit_id": v.visit_id, "patient_id": v.patient_id, "tag": tag})
+    tags = [{"visit_id": v.visit_id, "patient_id": v.patient_id, "tag": tag}
+            for v in visits_df.itertuples() for tag in COMMENT_TAGS.get(v.comment, [])]
 
     return {
         "visits": visits_df, "visit_items": items_df, "services": services,

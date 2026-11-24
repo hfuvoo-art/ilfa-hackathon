@@ -15,7 +15,6 @@ from sqlalchemy import create_engine, inspect, text
 
 from app import config, fixtures
 
-CONTRACT_TABLES = ["visits", "visit_items", "services", "patients", "offers", "comment_tags"]
 REQUIRED_TABLES = ["visits", "visit_items", "patients"]  # без них база бесполезна
 
 
@@ -32,11 +31,7 @@ def _db_tables() -> set[str]:
 
 
 def source() -> str:
-    """'db' или 'fixtures'."""
-    if config.USE_FIXTURES == "true":
-        return "fixtures"
-    if config.USE_FIXTURES == "false":
-        return "db"
+    """'db', если в базе есть таблицы контракта, иначе 'fixtures'."""
     return "db" if set(REQUIRED_TABLES) <= _db_tables() else "fixtures"
 
 
@@ -52,11 +47,6 @@ def table(name: str) -> pd.DataFrame:
     if name not in _db_tables():
         return pd.DataFrame()
     return pd.read_sql_table(name, engine())
-
-
-def reset_cache() -> None:
-    """Сбросить кэш после загрузки новых данных."""
-    _fixtures.cache_clear()
 
 
 # ---------- contacts: единственная таблица, которую пишет app ----------
