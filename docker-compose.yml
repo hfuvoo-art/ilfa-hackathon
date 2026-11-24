@@ -1,0 +1,57 @@
+# Запуск: docker compose up --build
+# API:       http://localhost:8000/docs
+# Интерфейс: http://localhost:8501
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ilfa
+      POSTGRES_USER: ilfa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ilfa}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ilfa -d ilfa"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    command: uvicorn app.api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+psycopg2://ilfa:${POSTGRES_PASSWORD:-ilfa}@db:5432/ilfa
+      USE_FIXTURES: ${USE_FIXTURES:-auto}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ui:
+    build: .
+    command: streamlit run app/ui/Home.py --server.address 0.0.0.0 --server.port 8501
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+
+  # Загрузка данных в Postgres: docker compose run --rm etl
+  etl:
+    build: .
+    command: python -m etl.load data/raw/anonymized
+    environment:
+      DATABASE_URL: postgresql+psycopg2://ilfa:${POSTGRES_PASSWORD:-ilfa}@db:5432/ilfa
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["tools"]
+
+volumes:
+  pgdata:
