@@ -221,3 +221,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ===== Ilfa hackathon: данные и секреты НЕ коммитим =====
+data/*
+!data/README.md
+*.xls
+*.xlsx
+*.rar
+*.zip
+*.db
+*.sqlite
+*.parquet
+*.csv
+!shared/**/*.csv
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
