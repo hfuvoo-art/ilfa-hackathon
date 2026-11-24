@@ -20,7 +20,7 @@ docker compose run --rm etl            # загрузить данные в Post
 
 ## Откуда берутся данные
 
-`app/repository.py` выбирает источник сам (`USE_FIXTURES=auto`):
+`app/repository.py` выбирает источник сам:
 - в базе есть таблицы `visits`, `visit_items`, `patients` → читаем базу;
 - иначе → фейковые данные из `app/fixtures.py` (30 пациентов, строго по `shared/DATA_CONTRACT.md`).
 

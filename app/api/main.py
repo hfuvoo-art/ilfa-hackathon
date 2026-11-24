@@ -195,7 +195,6 @@ async def upload(files: list[UploadFile] = File(...)):
         return {"saved": saved, "loaded": False,
                 "message": "Файлы сохранены в data/inbox. Загрузчик etl ещё не готов."}
     result = load.main(str(INBOX)) if hasattr(load, "main") else None
-    repo.reset_cache()
     return {"saved": saved, "loaded": True, "result": result}
 
 
