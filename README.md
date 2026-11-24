@@ -26,4 +26,8 @@
 
 ## Как запустить прототип
 
-Появится, когда будет готов `app/` (команда `docker compose up`).
+```bash
+cp .env.example .env
+docker compose up --build
+```
+Интерфейс: http://localhost:8501, API: http://localhost:8000/docs. Без Docker: `make install`, затем `make api` и `make ui` в двух терминалах. Подробнее: [app/README.md](app/README.md).
