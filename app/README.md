@@ -14,8 +14,8 @@ make ui    # http://localhost:8501
 В Docker:
 ```bash
 cp .env.example .env
-docker compose up --build              # db + api + ui
-docker compose run --rm etl            # загрузить данные в Postgres (когда etl/ готов)
+docker compose up --build              # api + ui
+docker compose run --rm etl            # построить базу data/ilfa.db из data/raw/anonymized
 ```
 
 ## Откуда берутся данные
@@ -31,7 +31,7 @@ docker compose run --rm etl            # загрузить данные в Post
 | От кого | Что | Как используется |
 |---|---|---|
 | etl | таблицы `visits`, `visit_items`, `services`, `patients` в `DATABASE_URL` | все экраны |
-| etl | модуль `etl.load` с функцией `main(folder: str) -> dict` (сколько файлов загружено) | экран «Загрузка данных», `POST /upload` |
+| etl | функция `etl.load.load(folder: Path)` | экран «Загрузка данных», `POST /upload` |
 | analytics | поля `patients.segment`, `rfm`, `ltv_hist`, `ltv_pred` | «Сегменты», фильтры, карточка |
 | offers | таблица `offers`, `comment_tags` | «Кому позвонить», карточка |
 | offers | функция `offers.build.regenerate(patient_id)` | кнопка «Перегенерировать текст» |

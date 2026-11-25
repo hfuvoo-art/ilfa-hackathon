@@ -26,7 +26,7 @@ m = st.columns(5)
 m[0].metric("Сегмент", p.get("segment") or "—")
 m[1].metric("Визитов", p["n_visits"])
 m[2].metric("Выручка, ₽", f"{p['revenue']:,.0f}".replace(",", " "))
-m[3].metric("Прогноз LTV, ₽", f"{(p.get('ltv_pred') or 0):,.0f}".replace(",", " "))
+m[3].metric("Прогноз LTV, ₽", f"{p['ltv_pred']:,.0f}".replace(",", " ") if p.get("ltv_pred") is not None else "—")
 m[4].metric("Дней с визита", p["days_since_last"])
 st.caption(f"Пол: {p['gender']} · Первый визит: {p['first_visit']} · Последний: {p['last_visit']} · "
            f"Врач: {p.get('main_doctor') or '—'} · Категории: {p.get('categories') or '—'}"

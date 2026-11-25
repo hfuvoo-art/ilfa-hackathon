@@ -8,8 +8,10 @@
 ## В работе
 - —
 
+## Сделано позже
+- Подключено к базе etl: Docker читает SQLite `data/ilfa.db`, загрузка xls вызывает `etl.load.load`.
+
 ## Блокеры / жду от других
-- etl: база с таблицами контракта; модуль `etl.load` с `main(folder) -> dict`.
 - analytics: `patients.segment`, `ltv_pred`.
 - offers: таблица `offers`, функция `offers.build.regenerate(patient_id)`.
 

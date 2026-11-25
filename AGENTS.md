@@ -45,7 +45,7 @@
 - Python 3.11+. Зависимости каждой роли — в `<папка>/requirements.txt`.
 - Чтение `.xls`: библиотека `xlrd` (формат старый, `openpyxl` его не читает).
 - Распаковка архива `anonymized.rar` (формат RAR5): `bsdtar`, `unrar` или свежий 7-Zip. Старый `p7zip 16` не справляется.
-- База: SQLite-файл `data/ilfa.db` для локальной работы; PostgreSQL в Docker для демо. Подключение через SQLAlchemy и переменную окружения `DATABASE_URL` (по умолчанию `sqlite:///data/ilfa.db`).
+- База: SQLite-файл `data/ilfa.db` — и локально, и в Docker для демо (PostgreSQL — этап внедрения). Подключение через SQLAlchemy и переменную окружения `DATABASE_URL` (по умолчанию `sqlite:///data/ilfa.db`).
 - API: FastAPI. Интерфейс: Streamlit.
 - LLM: через API, ключ в `.env` (например, `LLM_API_KEY`). Предпочтительно российский провайдер (YandexGPT / GigaChat) из-за 152-ФЗ.
 

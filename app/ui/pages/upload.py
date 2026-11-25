@@ -5,7 +5,7 @@ from api_client import post, source_badge
 st.title("📥 Загрузка новых визитов")
 source_badge()
 st.write("У медицинской системы нет API, поэтому новые визиты выгружаются в `.xls`. "
-         "Загрузите файлы сюда: они попадут в `data/inbox/`, и загрузчик добавит в базу только новые визиты.")
+         "Загрузите файлы сюда: они сохранятся в `data/inbox/`, и загрузчик добавит в базу только новые визиты.")
 
 files = st.file_uploader("Файлы «Визит № ….xls»", type=["xls"], accept_multiple_files=True)
 if files and st.button("Загрузить", type="primary"):
@@ -15,6 +15,6 @@ if files and st.button("Загрузить", type="primary"):
     if r.ok:
         data = r.json()
         st.success(f"Сохранено файлов: {len(data['saved'])}")
-        st.info(data.get("message") or f"Результат загрузки: {data.get('result')}")
+        st.info(data["message"])
     else:
         st.error(r.text)
