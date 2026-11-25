@@ -9,6 +9,7 @@
 - —
 
 ## Сделано позже
+- Схема архитектуры `app/ARCHITECTURE.md`, вход в интерфейс по паролю `APP_PASSWORD`, API в Docker закрыт снаружи.
 - Подключено к базе etl: Docker читает SQLite `data/ilfa.db`, загрузка xls вызывает `etl.load.load`.
 
 ## Блокеры / жду от других
