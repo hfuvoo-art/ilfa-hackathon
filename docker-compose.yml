@@ -1,5 +1,5 @@
 # Запуск: docker compose up --build
-# API:       http://localhost:8000/docs
+# API:       http://localhost:8000/docs (доступен только с этого компьютера)
 # Интерфейс: http://localhost:8501
 # База — SQLite-файл data/ilfa.db, его строит скрипт etl/ (см. etl/README.md).
 services:
@@ -12,13 +12,14 @@ services:
     volumes:
       - ./data:/app/data
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"  # API снаружи закрыт, к нему ходит только интерфейс
 
   ui:
     build: .
     command: streamlit run app/ui/Home.py --server.address 0.0.0.0 --server.port 8501
     environment:
       API_URL: http://api:8000
+      APP_PASSWORD: ${APP_PASSWORD:-}
     ports:
       - "8501:8501"
     depends_on:
