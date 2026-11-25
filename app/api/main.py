@@ -6,7 +6,9 @@
 from __future__ import annotations
 
 import importlib
+import io
 import math
+from contextlib import redirect_stdout
 from datetime import date, datetime
 from pathlib import Path
 from typing import Literal
@@ -16,6 +18,7 @@ from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel
 
 from app import config, repository as repo
+from etl.load import load
 
 app = FastAPI(title="Ilfa — маркетинг, который помнит каждого пациента", version="0.1.0")
 
@@ -30,6 +33,8 @@ def records(df: pd.DataFrame) -> list[dict]:
         for k, v in row.items():
             if isinstance(v, float) and math.isnan(v):
                 v = None
+            elif isinstance(v, pd.Timestamp) and v == v.normalize():
+                v = v.date().isoformat()  # SQLite отдаёт DATE как дату со временем 00:00
             elif isinstance(v, (pd.Timestamp, datetime, date)):
                 v = v.isoformat()
             elif hasattr(v, "item"):  # numpy-типы
@@ -66,7 +71,7 @@ def stats():
         "service_lines": len(it),
         "revenue": float(it["sum"].sum()) if len(it) else 0.0,
         "visits_without_services": int((~v["has_services"].astype(bool)).sum()) if len(v) else 0,
-        "period": [str(v.visit_date.min()), str(v.visit_date.max())] if len(v) else None,
+        "period": [str(pd.Timestamp(v.visit_date.min()).date()), str(pd.Timestamp(v.visit_date.max()).date())] if len(v) else None,
     }
 
 
@@ -180,22 +185,24 @@ def list_contacts(patient_id: str | None = None):
 
 @app.post("/upload")
 async def upload(files: list[UploadFile] = File(...)):
-    """Принять новые .xls в data/inbox/ и запустить загрузчик etl, если он уже есть."""
-    INBOX.mkdir(parents=True, exist_ok=True)
+    """Принять новые .xls в data/inbox/ и загрузить их в базу загрузчиком etl."""
+    # Каждая загрузка — в свою папку, чтобы битый файл не мешал следующим загрузкам
+    batch = INBOX / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    batch.mkdir(parents=True)
     saved = []
     for f in files:
         name = Path(f.filename or "").name
         if not name.lower().endswith(".xls"):
             raise HTTPException(400, f"Не .xls файл: {name}")
-        (INBOX / name).write_bytes(await f.read())
+        (batch / name).write_bytes(await f.read())
         saved.append(name)
+    log = io.StringIO()
     try:
-        load = importlib.import_module("etl.load")
-    except ImportError:
-        return {"saved": saved, "loaded": False,
-                "message": "Файлы сохранены в data/inbox. Загрузчик etl ещё не готов."}
-    result = load.main(str(INBOX)) if hasattr(load, "main") else None
-    return {"saved": saved, "loaded": True, "result": result}
+        with redirect_stdout(log):  # load() пишет итоги загрузки в stdout
+            load(batch)
+    except ValueError as error:
+        raise HTTPException(400, str(error))
+    return {"saved": saved, "message": log.getvalue().strip()}
 
 
 @app.get("/meta")
