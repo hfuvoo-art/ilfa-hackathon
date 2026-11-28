@@ -38,7 +38,7 @@ docker compose run --rm etl            # построить базу data/ilfa.d
 |---|---|---|
 | etl | таблицы `visits`, `visit_items`, `services`, `patients` в `DATABASE_URL` | все экраны |
 | etl | функция `etl.load.load(folder: Path)` | экран «Загрузка данных», `POST /upload` |
-| analytics | поля `patients.segment`, `rfm`, `ltv_hist`, `ltv_pred` | «Сегменты», фильтры, карточка |
+| analytics | поля `patients.segment`, `rfm`, `ltv_hist`, `ltv_pred`; `analytics.segments.compute_segments`, `analytics.charts.build_charts` | «Сегменты», «Аналитика», фильтры, карточка |
 | offers | таблица `offers`, `comment_tags` | «Кому позвонить», карточка |
 | offers | функция `offers.build.regenerate(patient_id)` | кнопка «Перегенерировать текст» |
 
@@ -52,6 +52,7 @@ docker compose run --rm etl            # построить базу data/ilfa.d
 | GET | `/stats` | общие метрики |
 | GET | `/meta` | значения для фильтров |
 | GET | `/segments` | сводка по сегментам |
+| GET | `/charts` | 8 графиков аналитики (Plotly JSON), только на реальной базе |
 | GET | `/patients?segment=&trigger=&q=&limit=` | список пациентов |
 | GET | `/patients/{id}` | карточка: визиты, услуги, теги, контакты |
 | GET | `/patients/{id}/offers` | офферы пациента |
@@ -59,7 +60,7 @@ docker compose run --rm etl            # построить базу data/ilfa.d
 | GET | `/calls?segment=&trigger=&doctor=&limit=` | «Кому позвонить сегодня» |
 | POST | `/contacts` | результат контакта (`no_answer`, `booked`, `refused`, `call_back`, `sent`) |
 | GET | `/contacts?patient_id=` | история контактов |
-| POST | `/upload` | загрузка `.xls` в `data/inbox/` + запуск `etl.load` |
+| POST | `/upload` | загрузка `.xls` в `data/inbox/` + запуск `etl.load` и пересчёт сегментов |
 
 ## Структура
 
@@ -71,5 +72,5 @@ app/
   api/main.py      FastAPI
   ui/Home.py       Streamlit, навигация
   ui/api_client.py клиент к API, русские подписи
-  ui/pages/        calls, patient, segments, upload
+  ui/pages/        calls, patient, segments, analytics, upload
 ```

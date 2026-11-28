@@ -14,6 +14,7 @@ if files and st.button("Загрузить", type="primary"):
         r = post("/upload", files=payload)
     if r.ok:
         data = r.json()
+        st.cache_data.clear()  # графики аналитики пересчитаются по новым данным
         st.success(f"Сохранено файлов: {len(data['saved'])}")
         st.info(data["message"])
     else:
