@@ -1,17 +1,16 @@
 import pandas as pd
 import streamlit as st
 
-from api_client import get, source_badge
+from api_client import get, header, rub
 
-st.title("👥 Сегменты пациентов")
-source_badge()
+header("Сегменты пациентов", "Из кого состоит база клиники и сколько приносит каждая группа.")
 
 s = get("/stats")
 m = st.columns(4)
-m[0].metric("Пациентов", s["patients"])
-m[1].metric("Визитов", s["visits"])
-m[2].metric("Выручка, ₽", f"{s['revenue']:,.0f}".replace(",", " "))
-m[3].metric("Визитов без услуг", s["visits_without_services"])
+m[0].metric("Пациентов", f"{s['patients']:,}".replace(",", "\u00a0"), border=True)
+m[1].metric("Визитов", f"{s['visits']:,}".replace(",", "\u00a0"), border=True)
+m[2].metric("Выручка", rub(s["revenue"]), border=True)
+m[3].metric("Визитов без услуг", f"{s['visits_without_services']:,}".replace(",", "\u00a0"), border=True)
 
 seg = get("/segments")
 if not seg:
@@ -22,12 +21,17 @@ df = pd.DataFrame(seg)
 c1, c2 = st.columns(2)
 c1.subheader("Пациентов в сегменте")
 c1.bar_chart(df.set_index("segment")["patients"], horizontal=True)
-c2.subheader("Выручка сегмента, ₽")
-c2.bar_chart(df.set_index("segment")["revenue"], horizontal=True)
+c2.subheader("Выручка сегмента, млн ₽")
+c2.bar_chart((df.set_index("segment")["revenue"] / 1_000_000).round(1), horizontal=True)
 
-st.dataframe(df.rename(columns={"segment": "Сегмент", "patients": "Пациентов", "revenue": "Выручка, ₽",
-                                "avg_check": "Средний чек, ₽", "ltv_pred": "Прогноз LTV, ₽"}),
-             hide_index=True, use_container_width=True)
+money = {"format": "localized"}  # разделители тысяч по языку браузера
+st.dataframe(df.round(0), hide_index=True, use_container_width=True, column_config={
+    "segment": "Сегмент",
+    "patients": "Пациентов",
+    "revenue": st.column_config.NumberColumn("Выручка, ₽", **money),
+    "avg_check": st.column_config.NumberColumn("Средний чек, ₽", **money),
+    "ltv_pred": st.column_config.NumberColumn("Прогноз LTV, ₽", **money),
+})
 
 st.subheader("Выгрузка сегмента для рассылки")
 choice = st.selectbox("Сегмент", df["segment"].tolist())

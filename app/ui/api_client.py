@@ -46,6 +46,27 @@ def post(path: str, json=None, files=None):
     return r
 
 
+def rub(x) -> str:
+    """Деньги для людей: 129,2 млн ₽, 34 841 ₽."""
+    if x is None:
+        return "—"
+    if abs(x) >= 1_000_000:
+        return f"{x / 1_000_000:.1f} млн ₽".replace(".", ",")
+    return f"{x:,.0f} ₽".replace(",", "\u00a0")
+
+
+def ru_date(iso: str | None) -> str:
+    """2026-09-17 → 17.09.2026"""
+    return ".".join(reversed(iso[:10].split("-"))) if iso else "—"
+
+
+def header(title: str, purpose: str):
+    """Заголовок экрана и одна строка о том, зачем он нужен."""
+    st.title(title)
+    st.caption(purpose)
+    source_badge()
+
+
 def source_badge():
     h = get("/health")
     if h["source"] == "fixtures":

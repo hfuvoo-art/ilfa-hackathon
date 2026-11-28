@@ -1,9 +1,8 @@
 import streamlit as st
 
-from api_client import CHANNELS, RESULTS, TONES, TRIGGERS, get, post, source_badge
+from api_client import CHANNELS, RESULTS, TONES, TRIGGERS, get, header, post
 
-st.title("📞 Кому позвонить сегодня")
-source_badge()
+header("Кому позвонить сегодня", "Пациенты с поводом для контакта: сверху те, кому стоит позвонить в первую очередь.")
 
 meta = get("/meta")
 c1, c2, c3, c4 = st.columns([2, 2, 2, 1])
@@ -17,13 +16,15 @@ if not rows:
     st.info("Нет пациентов с поводом для контакта по этим фильтрам.")
     st.stop()
 
-st.caption(f"Найдено: {len(rows)}. Отсортировано по приоритету: сверху те, кому звонить в первую очередь.")
+st.caption(f"Найдено: {len(rows)}")
 
 for r in rows:
     with st.container(border=True):
         left, right = st.columns([3, 2])
         with left:
-            st.markdown(f"**{r['last_name']} {r['first_name']}** · {r.get('segment') or '—'}")
+            st.markdown(f"#### {r['last_name']} {r['first_name']}")
+            st.markdown(f":green-badge[{r.get('segment') or 'Без сегмента'}] "
+                        f":red-badge[{TRIGGERS.get(r['trigger'], r['trigger'])}]")
             st.markdown(f"**Повод:** {r['reason']}  \n**Предложение:** {r['offer']}")
             st.caption(f"Тон: {TONES.get(r['tone'], r['tone'])} · Канал: {CHANNELS.get(r['channel'], r['channel'])} · "
                        f"Последний визит: {r.get('days_since_last', '—')} дн. назад · "
