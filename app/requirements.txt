@@ -6,3 +6,4 @@ sqlalchemy>=2.0,<3
 pandas>=2.2
 streamlit>=1.41,<2
 requests>=2.32
+plotly>=6,<7

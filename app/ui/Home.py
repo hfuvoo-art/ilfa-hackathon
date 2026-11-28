@@ -28,6 +28,7 @@ else:
         st.Page("pages/calls.py", title="Кому позвонить сегодня", icon="📞", default=True),
         st.Page("pages/patient.py", title="Карточка пациента", icon="🧾"),
         st.Page("pages/segments.py", title="Сегменты", icon="👥"),
+        st.Page("pages/analytics.py", title="Аналитика", icon="📊"),
         st.Page("pages/upload.py", title="Загрузка данных", icon="📥"),
     ]
 st.navigation(pages).run()

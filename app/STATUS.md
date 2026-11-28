@@ -11,9 +11,10 @@
 ## Сделано позже
 - Схема архитектуры `app/ARCHITECTURE.md`, вход в интерфейс по паролю `APP_PASSWORD`, API в Docker закрыт снаружи.
 - Подключено к базе etl: Docker читает SQLite `data/ilfa.db`, загрузка xls вызывает `etl.load.load`.
+- Подключена аналитика (PR #7): экран «Аналитика» с 8 графиками (`GET /charts`), после загрузки xls сегменты пересчитываются.
 
 ## Блокеры / жду от других
-- analytics: `patients.segment`, `ltv_pred`.
+- analytics: получено. Замечание: `summarize_ltv` (запрос по первой услуге) считается ~6 с, экран кэширует графики на 10 минут.
 - offers: таблица `offers`, функция `offers.build.regenerate(patient_id)`.
 
 ## Отдал другим

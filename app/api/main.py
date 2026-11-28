@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import importlib
 import io
+import json
 import math
 from contextlib import redirect_stdout
 from datetime import date, datetime
@@ -17,6 +18,8 @@ import pandas as pd
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel
 
+from analytics.charts import build_charts
+from analytics.segments import compute_segments
 from app import config, repository as repo
 from etl.load import load
 
@@ -200,9 +203,18 @@ async def upload(files: list[UploadFile] = File(...)):
     try:
         with redirect_stdout(log):  # load() пишет итоги загрузки в stdout
             load(batch)
+            compute_segments(repo.engine())  # новые визиты меняют сегменты и LTV
     except ValueError as error:
         raise HTTPException(400, str(error))
     return {"saved": saved, "message": log.getvalue().strip()}
+
+
+@app.get("/charts")
+def charts():
+    """Восемь графиков аналитики (Plotly JSON). Только на реальной базе."""
+    if repo.source() != "db":
+        return {}
+    return {name: json.loads(fig.to_json()) for name, fig in build_charts(repo.engine()).items()}
 
 
 @app.get("/meta")
