@@ -98,9 +98,9 @@ def calculate_ltv(
     return result
 
 
-def summarize_ltv(connection: Connection) -> dict[str, list[dict]]:
-    """Возвращает число пациентов, суммы и средний LTV по сегменту и первой услуге."""
-    by_segment = connection.execute(text("""
+def summarize_ltv_by_segment(connection: Connection) -> list[dict]:
+    """Возвращает число пациентов, суммы и средний LTV по сегментам."""
+    rows = connection.execute(text("""
         SELECT segment, COUNT(*) AS n_patients,
                SUM(ltv_hist) AS ltv_hist, SUM(ltv_pred) AS ltv_pred,
                AVG(ltv_hist) AS avg_ltv_hist, AVG(ltv_pred) AS avg_ltv_pred
@@ -108,6 +108,12 @@ def summarize_ltv(connection: Connection) -> dict[str, list[dict]]:
         GROUP BY segment
         ORDER BY segment
     """)).mappings()
+    return [dict(row) for row in rows]
+
+
+def summarize_ltv(connection: Connection) -> dict[str, list[dict]]:
+    """Возвращает число пациентов, суммы и средний LTV по сегменту и первой услуге."""
+    by_segment = summarize_ltv_by_segment(connection)
     # Порядка строк услуг внутри визита в контракте нет. При равенстве берём название по алфавиту.
     by_first_service = connection.execute(text("""
         WITH eligible_services AS (
@@ -138,6 +144,6 @@ def summarize_ltv(connection: Connection) -> dict[str, list[dict]]:
         ORDER BY s.service_name
     """)).mappings()
     return {
-        "by_segment": [dict(row) for row in by_segment],
+        "by_segment": by_segment,
         "by_first_service": [dict(row) for row in by_first_service],
     }
