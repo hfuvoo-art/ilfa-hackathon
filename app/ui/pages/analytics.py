@@ -17,4 +17,9 @@ if not data:
     st.stop()
 
 for fig in data.values():
+    # Вывод под графиком аналитик кладёт подписью внутри рисунка: она наезжает на оси и обрезается.
+    # Показываем его обычным текстом под графиком.
+    notes = fig["layout"].pop("annotations", [])
     st.plotly_chart(fig, use_container_width=True)
+    for note in notes:
+        st.caption(note["text"])
