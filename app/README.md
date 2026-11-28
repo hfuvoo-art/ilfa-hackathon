@@ -37,8 +37,8 @@ docker compose run --rm etl            # построить базу data/ilfa.d
 | От кого | Что | Как используется |
 |---|---|---|
 | etl | таблицы `visits`, `visit_items`, `services`, `patients` в `DATABASE_URL` | все экраны |
-| etl | функция `etl.load.load(folder: Path)` | экран «Загрузка данных», `POST /upload` |
-| analytics | поля `patients.segment`, `rfm`, `ltv_hist`, `ltv_pred`; `analytics.segments.compute_segments`, `analytics.charts.build_charts` | «Сегменты», «Аналитика», фильтры, карточка |
+| etl | функция `etl.load.load(folder: Path)` | экран «Загрузка визитов», `POST /upload` |
+| analytics | поля `patients.segment`, `rfm`, `ltv_hist`, `ltv_pred`; `analytics.segments.compute_segments`, `analytics.charts.build_charts` | «Сегменты», «Графики и выводы», фильтры, карточка |
 | offers | таблица `offers`, `comment_tags` | «Кому позвонить», карточка |
 | offers | функция `offers.build.regenerate(patient_id)` | кнопка «Перегенерировать текст» |
 

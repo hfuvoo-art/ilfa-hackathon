@@ -1,0 +1,45 @@
+# Тема интерфейса app/ (Streamlit читает этот файл из папки, откуда запущен: корень проекта).
+# Палитра «эмаль и сосна»: холодный светлый фон, глубокий зелёный как основной цвет,
+# приглушённый розовый (цвет десны) только для важных пометок.
+
+[client]
+# Прячем кнопку Deploy и меню разработчика: на демо они не нужны
+toolbarMode = "viewer"
+
+[theme]
+font = "Golos Text:https://fonts.googleapis.com/css2?family=Golos+Text:wght@400..700&display=swap, sans-serif"
+headingFontSizes = ["2rem", "1.4rem", "1.15rem"]
+headingFontWeights = [650, 600, 600]
+metricValueFontSize = "1.9rem"
+metricValueFontWeight = 600
+baseRadius = "10px"
+buttonRadius = "8px"
+showSidebarBorder = true
+
+[theme.light]
+primaryColor = "#1F6E68"
+backgroundColor = "#F5F7F6"
+secondaryBackgroundColor = "#E6EEEC"
+textColor = "#1C2B30"
+borderColor = "#D3DFDC"
+linkColor = "#1F6E68"
+greenColor = "#1F6E68"
+redColor = "#B9475E"
+chartCategoricalColors = ["#1F6E68", "#B9475E", "#6E8F98", "#C59A3D", "#8DB8B1"]
+
+[theme.light.sidebar]
+backgroundColor = "#EAF1EF"
+
+[theme.dark]
+primaryColor = "#5BB5AA"
+backgroundColor = "#10181A"
+secondaryBackgroundColor = "#1A2629"
+textColor = "#E4ECEA"
+borderColor = "#2A3B3F"
+linkColor = "#5BB5AA"
+greenColor = "#5BB5AA"
+redColor = "#E07A90"
+chartCategoricalColors = ["#5BB5AA", "#E07A90", "#93AEB5", "#D9B45E", "#2F7F77"]
+
+[theme.dark.sidebar]
+backgroundColor = "#0C1315"

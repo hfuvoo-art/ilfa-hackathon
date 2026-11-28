@@ -1,10 +1,9 @@
 import pandas as pd
 import streamlit as st
 
-from api_client import CHANNELS, RESULTS, TONES, TRIGGERS, get, post, source_badge
+from api_client import CHANNELS, RESULTS, TONES, TRIGGERS, get, header, post, rub, ru_date
 
-st.title("🧾 Карточка пациента")
-source_badge()
+header("Карточка пациента", "Вся история пациента, его предложения и прошлые контакты на одном экране.")
 
 q = st.text_input("Поиск по фамилии или имени", placeholder="Например: Фамилия 12")
 found = get("/patients", q=q, limit=200)
@@ -22,14 +21,14 @@ st.session_state["patient_id"] = pid
 card = get(f"/patients/{pid}")
 p = card["patient"]
 
-m = st.columns(5)
-m[0].metric("Сегмент", p.get("segment") or "—")
-m[1].metric("Визитов", p["n_visits"])
-m[2].metric("Выручка, ₽", f"{p['revenue']:,.0f}".replace(",", " "))
-m[3].metric("Прогноз LTV, ₽", f"{p['ltv_pred']:,.0f}".replace(",", " ") if p.get("ltv_pred") is not None else "—")
-m[4].metric("Дней с визита", p["days_since_last"])
-st.caption(f"Пол: {p['gender']} · Первый визит: {p['first_visit']} · Последний: {p['last_visit']} · "
-           f"Врач: {p.get('main_doctor') or '—'} · Категории: {p.get('categories') or '—'}"
+st.markdown(f":green-badge[{p.get('segment') or 'Без сегмента'}]")
+m = st.columns(4)
+m[0].metric("Визитов", p["n_visits"], border=True)
+m[1].metric("Выручка", rub(p["revenue"]), border=True)
+m[2].metric("Прогноз LTV на год", rub(p.get("ltv_pred")), border=True)
+m[3].metric("Дней с визита", p["days_since_last"], border=True)
+st.caption(f"Пол: {p['gender']} · Первый визит: {ru_date(p['first_visit'])} · Последний: {ru_date(p['last_visit'])} · "
+           f"Врач: {p.get('main_doctor') or '—'} · Категории: {(p.get('categories') or '—').replace(',', ', ')}"
            + (f" · Теги: {', '.join(card['tags'])}" if card["tags"] else ""))
 
 st.subheader("Персональные предложения")
@@ -48,7 +47,7 @@ for o in offers:
 
 st.subheader("История визитов")
 for v in card["visits"]:
-    title = f"{v['visit_date']} · {v['total_sum']:,.0f} ₽".replace(",", " ") + ("" if v["has_services"] else " · без услуг")
+    title = f"{ru_date(v['visit_date'])} · {v['total_sum']:,.0f} ₽".replace(",", " ") + ("" if v["has_services"] else " · без услуг")
     with st.expander(title):
         if v["items"]:
             df = pd.DataFrame(v["items"])[["service_name", "category", "doctor", "qty", "price", "sum", "discount"]]

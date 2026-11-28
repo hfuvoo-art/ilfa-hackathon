@@ -1,9 +1,8 @@
 import streamlit as st
 
-from api_client import post, source_badge
+from api_client import header, post
 
-st.title("📥 Загрузка новых визитов")
-source_badge()
+header("Загрузка визитов", "Новые визиты из медицинской системы: выгрузите .xls и добавьте их в базу.")
 st.write("У медицинской системы нет API, поэтому новые визиты выгружаются в `.xls`. "
          "Загрузите файлы сюда: они сохранятся в `data/inbox/`, и загрузчик добавит в базу только новые визиты.")
 
