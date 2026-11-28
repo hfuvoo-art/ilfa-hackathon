@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 from sqlalchemy import text
 
-from analytics.ltv import EMPTY_HISTORY, as_date, load_visit_history, summarize_ltv
+from analytics.ltv import EMPTY_HISTORY, as_date, load_visit_history, summarize_ltv_by_segment
 from analytics.metrics import pareto_metrics
 from analytics.services import build_service_report
 
@@ -27,7 +27,7 @@ def load_chart_data(engine, service_report=None):
     if service_report is None:
         service_report = build_service_report(engine)
     with engine.connect() as connection:
-        segments = summarize_ltv(connection)["by_segment"]
+        segments = summarize_ltv_by_segment(connection)
         patient_rows = connection.execute(text("""
             SELECT patient_id, segment, revenue, n_paid_visits FROM patients
         """)).all()

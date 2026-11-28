@@ -3,7 +3,7 @@
 import unittest
 from datetime import date
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.pool import StaticPool
 
 from analytics.charts import load_chart_data, render_charts, return_scenario
@@ -33,6 +33,20 @@ class ChartTests(unittest.TestCase):
         self.assertGreaterEqual(self.figures["pareto"].data[1].y[0], 0.8)
         self.assertEqual(len(self.figures["ltv"].data), 2)
         self.assertEqual(pareto_metrics([0, -100]), ([], [], None))
+
+    def test_chart_loading_does_not_read_service_rows_for_ltv(self):
+        statements = []
+
+        def record_query(connection, cursor, statement, parameters, context, executemany):
+            statements.append(statement.lower())
+
+        event.listen(self.engine, "before_cursor_execute", record_query)
+        self.addCleanup(event.remove, self.engine, "before_cursor_execute", record_query)
+        report = {key: self.data[key] for key in ("services", "transitions")}
+        data = load_chart_data(self.engine, service_report=report)
+
+        self.assertEqual(data["segments"], self.data["segments"])
+        self.assertFalse(any("visit_items" in statement for statement in statements))
 
     def test_service_and_transition_figures_use_report_aggregates(self):
         self.assertEqual(sum(self.figures["services"].data[0].x), 42700)
